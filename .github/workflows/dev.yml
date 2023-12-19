@@ -60,6 +60,7 @@ jobs:
           path: coverage.html
           min_coverage: 30
           exclude: test/*
+          flags: --html
 
       - name: Fail if coverage below threshold
         if: ${{ failure() }}
