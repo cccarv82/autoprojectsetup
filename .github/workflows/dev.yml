@@ -28,17 +28,13 @@ jobs:
         run: golangci-lint run ./...
 
       - name: Run tests
-        run: go test -v -coverprofile=coverage.out ./...
+        run: go test -coverprofile=coverage.out
 
-      - name: Convert coverage to HTML
-        run: |
-          go tool cover -html=coverage.out -o coverage.html
-
-      - name: Upload HTML coverage report
+      - name: Upload lcov report
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-html
-          path: coverage.html
+          name: lcov-coverage
+          path: coverage.out
 
   check-coverage:
     needs: build
@@ -48,19 +44,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download coverage HTML
+      - name: Download lcov coverage
         uses: actions/download-artifact@v3
         with:
-          name: coverage-html
+          name: lcov-coverage
           path: .
 
       - name: Run lcov-cop
         uses: ChicagoFlutter/lcov-cop@v1.0.0
         with:
-          path: coverage.html
+          path: coverage.out
           min_coverage: 30
           exclude: test/*
-          flags: --html
 
       - name: Fail if coverage below threshold
         if: ${{ failure() }}
