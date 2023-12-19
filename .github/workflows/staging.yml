@@ -43,7 +43,9 @@ jobs:
 
     - name: Check test coverage
       run: |
-        go tool cover -func=coverage.txt | grep total | awk '{print $3}' | sed 's/%//' | awk '{if($1 < 70.0) exit 1}'
+        COVERAGE=$(go tool cover -func=coverage.txt | grep total | awk '{print $3}' | sed 's/%//')
+        echo "Test coverage: $COVERAGE%"
+        echo $COVERAGE | awk '{if($1 < 70.0) exit 1}'
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
@@ -51,6 +53,16 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.txt
     
-
     - name: Build
       run: go build -v .
+
+    - name: Auto merge to main
+      if: github.ref == 'refs/heads/staging'
+      uses: pascalgn/automerge-action@v0.14.3
+      env:
+        GITHUB_TOKEN: "${{ secrets.ACTIONS_ACCESS_TOKEN }}"
+        MERGE_LABELS: ""
+        MERGE_METHOD: "merge"
+        MERGE_COMMIT_MESSAGE: "Automatic merge from staging"
+        MERGE_FORKS: "false"
+        UPDATE_LABELS: ""
