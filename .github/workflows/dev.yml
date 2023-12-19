@@ -42,4 +42,4 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git merge origin/refs/heads/${{ github.ref }} --no-ff -m "Merge ${{ github.ref }} into dev [skip ci]"
+          git merge origin/${{ github.ref }} --no-ff -m "Merge ${{ github.ref }} into dev [skip ci]"
