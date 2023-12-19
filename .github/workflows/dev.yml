@@ -27,10 +27,20 @@ jobs:
       - name: Run linter
         run: golangci-lint run ./...
 
+  check-coverage:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Install gocov
         run: go get github.com/axw/gocov/gocov
 
-      - name: Run tests and generate coverage
+      - name: Add GOPATH to PATH
+        run: |
+          echo "$GOPATH/bin" >> $GITHUB_PATH
+
+      - name: Run tests
         run: gocov test ./... > coverage.out
 
       - name: Upload coverage report
@@ -38,20 +48,6 @@ jobs:
         with:
           name: coverage-report
           path: coverage.out
-
-  check-coverage:
-    needs: build
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Download coverage report
-        uses: actions/download-artifact@v2
-        with:
-          name: coverage-report
-          path: .
 
       - name: Check coverage
         run: |
