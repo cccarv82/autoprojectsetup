@@ -1,77 +1,72 @@
 name: CI
 
-on: 
+on:
   push:
     branches-ignore:
       - main
       - dev
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
 
-    - uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21.5
 
-    - name: Setup Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.18
-        
-    - name: Install linter
-      run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - name: Install linter
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
-    - name: Run linter
-      run: golangci-lint run ./...
+      - name: Run linter
+        run: golangci-lint run ./...
 
-    - name: Install cover
-      run: go get golang.org/x/tools/cmd/cover
+      - name: Install cover
+        run: go get golang.org/x/tools/cmd/cover
 
-    - name: Run tests with coverage
-      run: go test -v -coverprofile=coverage.out ./...
+      - name: Run tests with coverage
+        run: go test -v -coverprofile=coverage.out ./...
 
-    - name: Convert coverage.out to XML
-      run: go tool cover -xml -o coverage.xml
+      - name: Convert coverage.out to XML
+        run: go tool cover -xml -o coverage.xml
 
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+
   check-coverage:
-
     runs-on: ubuntu-latest
-    
+
     needs: build
 
     steps:
-    - name: Check coverage
-      uses: ChicagoFlutter/lcov-cop@v1.0.0
-      with:
-        path: coverage.xml
-        min_coverage: 30
-        exclude: test/*
+      - name: Check coverage
+        uses: ChicagoFlutter/lcov-cop@v1.0.0
+        with:
+          path: coverage.xml
+          min_coverage: 30
+          exclude: test/*
 
-    - name: Fail if coverage below threshold
-      if: ${{ failure() }}  
-      run: exit 1
+      - name: Fail if coverage below threshold
+        if: ${{ failure() }}
+        run: exit 1
 
   merge-to-dev:
-
     needs: check-coverage
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
-        ref: dev
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+          ref: dev
 
-    - name: Merge to dev
-      run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        git merge origin/${{ github.ref }} --no-ff -m "Merge ${{ github.ref }} into dev [skip ci]"
+      - name: Merge to dev
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git merge origin/${{ github.ref }} --no-ff -m "Merge ${{ github.ref }} into dev [skip ci]"
