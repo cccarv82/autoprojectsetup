@@ -44,6 +44,10 @@ jobs:
         with:
           go-version: 1.21
 
+      - name: Set Go tool version
+        run: |
+          echo "GOLANG_VERSION=1.21" >> $GITHUB_ENV
+
       - name: Install gocov
         run: go install github.com/axw/gocov/gocov@latest
 
