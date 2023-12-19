@@ -45,8 +45,12 @@ jobs:
         run: |
           echo "$GOPATH/bin" >> $GITHUB_PATH
 
-      - name: Cd into package
-        run: cd autoprojectsetup
+      - name: Debug info
+        run: |
+          pwd
+          ls -la
+          echo $GOPATH
+          which gocov
 
       - name: Run tests
         run: gocov test ./... > coverage.out
