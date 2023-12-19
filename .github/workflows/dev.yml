@@ -30,7 +30,7 @@ jobs:
       - name: Run tests with coverage
         run: go test -v -coverprofile=coverage.out ./...
 
-      - name: Convert coverage.out to XML
+      - name: Convert coverage.out to HTML
         run: go tool cover -html=coverage.out -o coverage.html
 
       - name: Upload coverage
@@ -47,7 +47,7 @@ jobs:
       - name: Check coverage
         uses: ChicagoFlutter/lcov-cop@v1.0.0
         with:
-          path: coverage.xml
+          path: coverage.html
           min_coverage: 30
           exclude: test/*
 
