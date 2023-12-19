@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - staging
+  pull_request:
+    branches:
+      - staging
 
 jobs:
   build:
@@ -66,3 +69,18 @@ jobs:
         MERGE_COMMIT_MESSAGE: "Automatic merge from staging"
         MERGE_FORKS: "false"
         UPDATE_LABELS: ""
+
+  sync:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Merge staging branch to main branch
+      uses: devmasx/merge-branch@v1.3.1
+      with:
+        from_branch: "staging"
+        target_branch: "main"
+        github_token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
