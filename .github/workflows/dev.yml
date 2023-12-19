@@ -27,13 +27,16 @@ jobs:
       - name: Run linter
         run: golangci-lint run ./...
 
-      - name: Run tests
-        run: go test -coverprofile=coverage.out
+      - name: Install gocov
+        run: go get github.com/axw/gocov/gocov
 
-      - name: Upload lcov report
-        uses: actions/upload-artifact@v3
+      - name: Run tests and generate coverage
+        run: gocov test ./... > coverage.out
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
         with:
-          name: lcov-coverage
+          name: coverage-report
           path: coverage.out
 
   check-coverage:
@@ -44,18 +47,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download lcov coverage
-        uses: actions/download-artifact@v3
+      - name: Download coverage report
+        uses: actions/download-artifact@v2
         with:
-          name: lcov-coverage
+          name: coverage-report
           path: .
 
-      - name: Run lcov-cop
-        uses: ChicagoFlutter/lcov-cop@v1.0.0
-        with:
-          path: coverage.out
-          min_coverage: 30
-          exclude: test/*
+      - name: Check coverage
+        run: |
+          # Check coverage meets minimum threshold using gocov-xml utility
+          go get github.com/AlekSi/gocov-xml
+          gocov-xml < coverage.out > coverage.xml
+          go get github.com/t-yuki/gocover-cobertura
+          gocover-cobertura < coverage.xml > cobertura-coverage.xml
+          go get github.com/ChicagoFlutter/lcov-cop
+          lcov-cop cobertura-coverage.xml --min-coverage=0.7
 
       - name: Fail if coverage below threshold
         if: ${{ failure() }}
