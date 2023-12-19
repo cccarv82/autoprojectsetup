@@ -13,30 +13,27 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Go
+      - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.21.5
 
-      - name: Install linter
-        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - name: Install dependencies
+        run: go mod download
 
       - name: Run linter
         run: golangci-lint run ./...
 
-      - name: Install cover
-        run: go get golang.org/x/tools/cmd/cover
-
-      - name: Run tests with coverage
+      - name: Run tests
         run: go test -v -coverprofile=coverage.out ./...
 
-      - name: Convert coverage.out to HTML
-        run: go tool cover -html=coverage.out -o coverage.html
+      - name: Convert coverage to LCOV
+        run: go tool cover -func=coverage.out -o coverage.info
 
-      - name: Upload coverage
+      - name: Upload coverage report
         uses: codecov/codecov-action@v3
         with:
-          file: ./coverage.html
+          file: ./coverage.info
 
   check-coverage:
     runs-on: ubuntu-latest
@@ -47,7 +44,7 @@ jobs:
       - name: Check coverage
         uses: ChicagoFlutter/lcov-cop@v1.0.0
         with:
-          path: coverage.html
+          path: coverage.info
           min_coverage: 30
           exclude: test/*
 
@@ -57,6 +54,7 @@ jobs:
 
   merge-to-dev:
     needs: check-coverage
+
     runs-on: ubuntu-latest
 
     steps:
