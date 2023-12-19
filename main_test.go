@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 )
@@ -20,7 +20,7 @@ func TestMain(t *testing.T) {
   // restaura os handles
   w.Close()
   os.Stdout = old
-  out, _ := ioutil.ReadAll(r)
+  out, _ := io.ReadAll(r)
 
   got := string(out)
   want := "Hello World\n"
