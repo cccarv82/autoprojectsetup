@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Add checkout step to ensure dev branch is checked out
+      # Checkout dev branch
       - uses: actions/checkout@v2
         with:
           ref: dev
@@ -44,6 +44,15 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git merge origin/${{ github.ref }} --no-ff -m "Merge ${{ github.ref }} into dev [skip ci]"
+
+      # Check return value
+      - name: Check merge status
+        run: |
+          MERGE_STATUS=$?
+          if [ $MERGE_STATUS -ne 0 ]; then
+            echo "Merge failed with status $MERGE_STATUS"
+            exit 1
+          fi
 
       # Handle errors
       - name: Handle merge errors
