@@ -1,6 +1,6 @@
 module github.com/cccarv82/autoprojectsetup
 
-go 1.21
+go 1.20
 
 require (
 	github.com/axw/gocov v1.1.0 // indirect
