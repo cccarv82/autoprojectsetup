@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"io"
 	"os"
 	"testing"
@@ -10,7 +9,7 @@ import (
 func TestMain(t *testing.T) {
 
   // captura a saída padrão
-  var buf bytes.Buffer
+//   var buf bytes.Buffer
   old := os.Stdout // armazena os handles atuais
   r, w, _ := os.Pipe()
   os.Stdout = w
