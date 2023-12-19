@@ -30,13 +30,8 @@ jobs:
       - name: Run tests
         run: go test -v -coverprofile=coverage.out ./...
 
-      - name: Convert coverage to LCOV
+      - name: Convert coverage
         run: go tool cover -func=coverage.out -o coverage.info
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.info
 
   check-coverage:
     runs-on: ubuntu-latest
@@ -44,10 +39,16 @@ jobs:
     needs: build
 
     steps:
-      - name: Check coverage
+      - name: Print directory contents
+        run: ls -la
+
+      - name: Print coverage.info path
+        run: echo "Coverage path is ${{ github.workspace }}/coverage.info"
+
+      - name: Run ChicagoFlutter/lcov-cop
         uses: ChicagoFlutter/lcov-cop@v1.0.0
         with:
-          path: coverage.info
+          path: ${{ github.workspace }}/coverage.info
           min_coverage: 30
           exclude: test/*
 
