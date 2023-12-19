@@ -20,7 +20,7 @@ jobs:
 
       - name: Set Go tool version
         run: |
-          echo "GOLANG_VERSION=${steps.go.outputs.go-version}" >> $GITHUB_ENV
+          echo "GOLANG_VERSION=1.21" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: go mod download
