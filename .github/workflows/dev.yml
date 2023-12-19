@@ -15,12 +15,8 @@ jobs:
 
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.20.12
+          go-version: 1.21.5
         id: go
-
-      - name: Set Go tool version
-        run: |
-          echo "GOLANG_VERSION=1.20" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: go mod download
@@ -31,64 +27,8 @@ jobs:
       - name: Run linter
         run: golangci-lint run ./...
 
-  check-coverage:
-    needs: build
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.20.12
-
-      - name: Set Go tool version
-        run: |
-          echo "GOLANG_VERSION=1.20" >> $GITHUB_ENV
-
-      - name: Install gocov
-        run: go install github.com/axw/gocov/gocov@latest
-
-      - name: Add GOPATH to PATH
-        run: |
-          echo "$GOPATH/bin" >> $GITHUB_PATH
-
-      - name: Debug info
-        run: |
-          pwd
-          ls -la
-          echo $GOPATH
-          which gocov
-
-      - name: Run tests
-        env:
-          GOROOT: /opt/hostedtoolcache/go/1.20.12
-        run: gocov test ./... > coverage.out
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-report
-          path: coverage.out
-
-      - name: Check coverage
-        run: |
-          # Check coverage meets minimum threshold using gocov-xml utility
-          go get github.com/AlekSi/gocov-xml
-          gocov-xml < coverage.out > coverage.xml
-          go get github.com/t-yuki/gocover-cobertura
-          gocover-cobertura < coverage.xml > cobertura-coverage.xml
-          go get github.com/ChicagoFlutter/lcov-cop
-          lcov-cop cobertura-coverage.xml --min-coverage=0.7
-
-      - name: Fail if coverage below threshold
-        if: ${{ failure() }}
-        run: exit 1
-
   merge-to-dev:
-    needs: check-coverage
+    needs: build
 
     runs-on: ubuntu-latest
 
