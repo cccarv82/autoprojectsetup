@@ -26,11 +26,24 @@ jobs:
     - name: Build
       run: go build -v -o autoprojectsetup
 
-    - name: Set up gh
-      run: |
-        curl -sSL https://install.github.com/gh-cli/script.deb.sh | sudo bash
-        gh auth login --with-token <<< "${{ secrets.ACTIONS_ACCESS_TOKEN }}"
-
     - name: Create Release
-      run: |
-        gh release create ${{ github.sha }} ./autoprojectsetup --title "Release ${{ github.sha }}" --notes "Release of ${{ github.sha }}"
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      id: upload_release_asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./autoprojectsetup
+        asset_name: autoprojectsetup
+        asset_content_type: application/octet-stream
