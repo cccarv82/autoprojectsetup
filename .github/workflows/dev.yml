@@ -31,7 +31,7 @@ jobs:
         run: go test -v -coverprofile=coverage.out ./...
 
       - name: Convert coverage.out to XML
-        run: go tool cover -xml -o coverage.xml
+        run: go tool cover -xml=coverage.xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
