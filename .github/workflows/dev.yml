@@ -33,6 +33,12 @@ jobs:
       - name: Convert coverage
         run: go tool cover -func=coverage.out -o coverage-info.txt
 
+      - name: Share coverage file
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-file
+          path: coverage-info.txt
+
       - name: List files after coverage generation
         run: ls -la
 
@@ -42,6 +48,13 @@ jobs:
     needs: build
 
     steps:
+      - uses: actions/checkout@v2
+
+      - name: Download coverage file
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-file
+
       - name: Print directory contents
         run: ls -la
 
@@ -51,7 +64,7 @@ jobs:
       - name: Run ChicagoFlutter/lcov-cop
         uses: ChicagoFlutter/lcov-cop@v1.0.0
         with:
-          path: /home/runner/work/autoprojectsetup/autoprojectsetup/coverage-info.txt
+          path: coverage-info.txt
           min_coverage: 30
           exclude: test/*
 
