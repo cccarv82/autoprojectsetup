@@ -22,7 +22,7 @@ func TestMain(t *testing.T) {
   out, _ := io.ReadAll(r)
 
   got := string(out)
-  want := "Hello World!\n"
+  want := "Hello World!!!\n"
 
   if got != want {
     t.Errorf("saída incorreta: obtido '%s', esperado '%s'", got, want)
