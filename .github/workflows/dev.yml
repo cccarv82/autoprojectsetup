@@ -33,13 +33,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Add checkout step to ensure dev branch is checked out
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
           ref: dev
 
+      # Merge command
       - name: Merge to dev
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git merge origin/${{ github.ref }} --no-ff -m "Merge ${{ github.ref }} into dev [skip ci]"
+
+      # Handle errors
+      - name: Handle merge errors
+        if: ${{ failure() }}
+        run: |
+          echo "Merge failed with exit code $?"
+          exit 1
